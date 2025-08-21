@@ -1,4 +1,4 @@
-package gosecrets
+package main
 
 import (
 	"os"
