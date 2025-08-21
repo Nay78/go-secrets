@@ -2,7 +2,6 @@ package s
 
 import (
 	"os"
-	"reflect"
 	"strings"
 )
 
@@ -29,21 +28,20 @@ func get(envs ...string) []string {
 	return result
 }
 
-// set the environment variables from a struct for testing
-func Set(st any) {
-	val := reflect.ValueOf(st)
-	if val.Kind() == reflect.Ptr {
-		val = val.Elem()
-	}
-
-	typ := val.Type()
-	for i := range val.NumField() {
-		field := val.Field(i)
-		fieldName := typ.Field(i).Name
-		if field.Kind() == reflect.String && field.CanSet() {
-			fieldValue := field.String()
-			envName := strings.ToUpper(fieldName)
-			os.Setenv(envName, fieldValue)
+// Set parses a .env-style string and sets each key-value pair as an environment variable.
+//
+// Example:
+//
+//	Set(`FOO=bar
+//	BAZ=qux`)
+func Set(envs string) {
+	lines := strings.Split(strings.TrimSpace(envs), "\n")
+	for _, line := range lines {
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+			os.Setenv(key, value)
 		}
 	}
 }
